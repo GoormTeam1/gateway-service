@@ -1,5 +1,16 @@
 package edu.goorm.gatewayservice;
 
+import java.nio.charset.StandardCharsets;
+
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+
 import edu.goorm.gatewayservice.global.exception.BusinessException;
 import edu.goorm.gatewayservice.global.exception.ErrorCode;
 import io.jsonwebtoken.Claims;
@@ -10,17 +21,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.core.Ordered;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import reactor.core.publisher.Mono;
-
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 
 @Component
 @RequiredArgsConstructor
@@ -40,26 +41,29 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     String token = extractToken(exchange);
     if (token == null) {
-      throw new BusinessException(ErrorCode.ACCESS_TOKEN_NOT_FOUND);
+      return Mono.error(new BusinessException(ErrorCode.ACCESS_TOKEN_NOT_FOUND));
     }
 
-    validateToken(token);
+    try {
+      validateToken(token);
+      Claims claims = extractClaims(token);
+      String userEmail = claims.getSubject();
 
-    // JWT 파싱 및 사용자 이메일 추출
-    Claims claims = extractClaims(token);
+      ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+          .headers(headers -> {
+            headers.remove("X-User-Email");
+            headers.add("X-User-Email", userEmail);
+          })
+          .build();
 
-    String userEmail = claims.getSubject(); // 이메일을 subject로 저장했다고 가정
+      ServerWebExchange mutatedExchange = exchange.mutate()
+          .request(mutatedRequest)
+          .build();
 
-    // 기존 요청을 복제하여 사용자 정보를 강제로 헤더에 추가
-    ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
-        .header("X-User-Email", userEmail)
-        .build();
-
-    ServerWebExchange mutatedExchange = exchange.mutate()
-        .request(mutatedRequest)
-        .build();
-
-    return chain.filter(mutatedExchange);
+      return chain.filter(mutatedExchange);
+    } catch (BusinessException e) {
+      return Mono.error(e);
+    }
   }
 
   private String extractToken(ServerWebExchange exchange) {
@@ -76,7 +80,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
       Jwts.parserBuilder()
           .setSigningKey(key)
           .build()
-          .parseClaimsJws(token); // 이 줄에서 모든 예외가 터짐
+          .parseClaimsJws(token);
     } catch (ExpiredJwtException e) {
       throw new BusinessException(ErrorCode.EXPIRED_ACCESS_TOKEN);
     } catch (MalformedJwtException e) {
@@ -89,7 +93,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
       throw new BusinessException(ErrorCode.INVALID_ACCESS_TOKEN);
     }
   }
-
 
   private Claims extractClaims(String token) {
     SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
