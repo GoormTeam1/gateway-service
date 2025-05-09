@@ -36,12 +36,15 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     String path = exchange.getRequest().getPath().toString();
 
     // 로그인, 회원가입은 토큰 없이도 통과
-    if (path.contains("/api/user/login") || path.contains("/api/user/signup") || path.contains("api/auth/reissue") || path.contains("/api/news")) {
+    if (path.contains("/api/user/login") || path.contains("/api/user/signup") || path.contains("api/auth/reissue")) {
       return chain.filter(exchange);
     }
 
     String token = extractToken(exchange);
     if (token == null) {
+      if (path.contains("/api/news")) {
+        return chain.filter(exchange);
+      }
       return Mono.error(new BusinessException(ErrorCode.ACCESS_TOKEN_NOT_FOUND));
     }
 
