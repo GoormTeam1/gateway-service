@@ -54,13 +54,18 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
       String userEmail = claims.getSubject();
       String username = (String) claims.get("username");
       String encodedUsername = URLEncoder.encode(username, StandardCharsets.UTF_8);
-
+      String userId = (String) claims.get("userId");
       ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
           .headers(headers -> {
             headers.remove("X-User-Email");
             headers.add("X-User-Email", userEmail);
+
             headers.remove("X-User-Username");
             headers.add("X-User-Username", encodedUsername);
+
+            headers.remove("X-User-Id");
+            headers.add("X-User-Id", userId);
+
           })
           .build();
 
