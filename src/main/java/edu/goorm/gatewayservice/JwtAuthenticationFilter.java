@@ -1,5 +1,6 @@
 package edu.goorm.gatewayservice;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 import javax.crypto.SecretKey;
@@ -48,11 +49,15 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
       validateToken(token);
       Claims claims = extractClaims(token);
       String userEmail = claims.getSubject();
+      String username = (String) claims.get("username");
+      String encodedUsername = URLEncoder.encode(username, StandardCharsets.UTF_8);
 
       ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
           .headers(headers -> {
             headers.remove("X-User-Email");
             headers.add("X-User-Email", userEmail);
+            headers.remove("X-User-Username");
+            headers.add("X-User-Username", encodedUsername);
           })
           .build();
 
