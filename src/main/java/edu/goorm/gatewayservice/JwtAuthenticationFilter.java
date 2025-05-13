@@ -32,11 +32,13 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
   private String secretKey;
 
   @Override
-  public Mono<Void> filter(ServerWebExchange exchange, org.springframework.cloud.gateway.filter.GatewayFilterChain chain) {
+  public Mono<Void> filter(ServerWebExchange exchange,
+      org.springframework.cloud.gateway.filter.GatewayFilterChain chain) {
     String path = exchange.getRequest().getPath().toString();
 
     // 로그인, 회원가입은 토큰 없이도 통과
-    if (path.contains("/api/user/login") || path.contains("/api/user/signup") || path.contains("api/auth/reissue")) {
+    if (path.contains("/api/user/login") || path.contains("/api/user/signup") || path.contains("api/auth/reissue")
+        || path.contains("/api/recommendation/search/default")) {
       return chain.filter(exchange);
     }
 
