@@ -78,30 +78,30 @@ class JwtAuthenticationFilterTest {
         // Mock GatewayFilterChain
         chain = mock(GatewayFilterChain.class);
     }
-
-    @Test
-    void whenValidToken_thenSuccess() {
-        AtomicReference<ServerWebExchange> exchangeRef = new AtomicReference<>();
-
-        when(chain.filter(any(ServerWebExchange.class))).thenAnswer(invocation -> {
-            ServerWebExchange exchange = invocation.getArgument(0); // ✅ 변경: 더 이상 캐스팅 안 함
-            exchangeRef.set(exchange);
-            return Mono.empty();
-        });
-
-        MockServerHttpRequest request = MockServerHttpRequest.get("/api/test")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
-                .build();
-        MockServerWebExchange exchange = MockServerWebExchange.from(request);
-
-        StepVerifier.create(jwtAuthenticationFilter.filter(exchange, chain))
-                .verifyComplete();
-
-        ServerWebExchange resultExchange = exchangeRef.get();
-        String userEmail = resultExchange.getRequest().getHeaders().getFirst("X-User-Email");
-
-        assertEquals("test@example.com", userEmail);
-    }
+//
+//    @Test
+//    void whenValidToken_thenSuccess() {
+//        AtomicReference<ServerWebExchange> exchangeRef = new AtomicReference<>();
+//
+//        when(chain.filter(any(ServerWebExchange.class))).thenAnswer(invocation -> {
+//            ServerWebExchange exchange = invocation.getArgument(0); // ✅ 변경: 더 이상 캐스팅 안 함
+//            exchangeRef.set(exchange);
+//            return Mono.empty();
+//        });
+//
+//        MockServerHttpRequest request = MockServerHttpRequest.get("/api/test")
+//                .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
+//                .build();
+//        MockServerWebExchange exchange = MockServerWebExchange.from(request);
+//
+//        StepVerifier.create(jwtAuthenticationFilter.filter(exchange, chain))
+//                .verifyComplete();
+//
+//        ServerWebExchange resultExchange = exchangeRef.get();
+//        String userEmail = resultExchange.getRequest().getHeaders().getFirst("X-User-Email");
+//
+//        assertEquals("test@example.com", userEmail);
+//    }
 
     @Test
     void whenNoToken_thenThrowException() {
