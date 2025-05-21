@@ -6,10 +6,10 @@
 
     <!-- ✅ GatewayCustomLogger 전용 로그 파일 appender (20분 단위 분할) -->
     <appender name="GATEWAYLOGGER" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/gateway-service/gateway.log</file>
+        <file>../logs/service/gateway-service/gateway.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- ✅ 분 단위 롤링 (20분 단위처럼 활용 가능) -->
-            <fileNamePattern>logs/gateway-service/gateway.%d{yyyy-MM-dd_HH-mm}.log</fileNamePattern>
+            <fileNamePattern>../logs/service/gateway-service/gateway.%d{yyyy-MM-dd_HH-mm}.log</fileNamePattern>
             <maxHistory>90</maxHistory> <!-- 약 하루 3개 × 24시간 = 72개, 여유분 포함 -->
         </rollingPolicy>
         <encoder>
