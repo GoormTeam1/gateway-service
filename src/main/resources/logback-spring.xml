@@ -1,33 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <!-- ✅ Spring Boot 기본 콘솔 스타일 유지 -->
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
 
-    <!-- ✅ GatewayCustomLogger 전용 로그 파일 appender (20분 단위 분할) -->
-    <appender name="GATEWAYLOGGER" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>../logs/service/gateway-service/gateway.log</file>
+    <!-- ✅ info 로그 (JSON 형식) -->
+    <appender name="INFO_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>../logs/service/gateway-service/info.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- ✅ 분 단위 롤링 (20분 단위처럼 활용 가능) -->
-            <fileNamePattern>../logs/service/gateway-service/gateway.%d{yyyy-MM-dd_HH-mm}.log</fileNamePattern>
-            <maxHistory>90</maxHistory> <!-- 약 하루 3개 × 24시간 = 72개, 여유분 포함 -->
+            <fileNamePattern>../logs/service/gateway-service/info.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
         </rollingPolicy>
-        <encoder>
-            <!-- 예외 포함 + 운영용 상세 포맷 -->
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n%ex</pattern>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%msg%n</Pattern>
         </encoder>
     </appender>
 
-    <!-- ✅ 루트 logger: 콘솔 출력만 유지 -->
+    <!-- ✅ error 로그 (JSON 형식) -->
+    <appender name="ERROR_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>../logs/service/gateway-service/error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>../logs/service/gateway-service/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%msg%n</Pattern>
+        </encoder>
+    </appender>
+
+<!--    &lt;!&ndash; ✅ external 로그 (Kafka 등 외부 시스템 연동) &ndash;&gt;-->
+<!--    <appender name="EXTERNAL_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <file>../logs/service/gateway-service/external.log</file>-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+<!--            <fileNamePattern>../logs/service/gateway-service/external.%d{yyyy-MM-dd}.log</fileNamePattern>-->
+<!--            <maxHistory>30</maxHistory>-->
+<!--        </rollingPolicy>-->
+<!--        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">-->
+<!--            <Pattern>%msg%n</Pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+    <!-- ✅ 각각의 로거에 Appender 연결 -->
+    <logger name="infoLogger" level="INFO" additivity="false">
+        <appender-ref ref="INFO_LOG"/>
+    </logger>
+
+    <logger name="errorLogger" level="ERROR" additivity="false">
+        <appender-ref ref="ERROR_LOG"/>
+    </logger>
+
+<!--    <logger name="externalLogger" level="INFO" additivity="false">-->
+<!--        <appender-ref ref="EXTERNAL_LOG"/>-->
+<!--    </logger>-->
+
+    <!-- ✅ 루트 로거는 콘솔만 유지 -->
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
     </root>
-
-    <!-- ✅ GatewayCustomLogger 전용 파일로만 출력 -->
-    <logger name="edu.goorm.gatewayservice.global.logger.GatewayCustomLogger"
-      level="INFO"
-      additivity="false">
-        <appender-ref ref="GATEWAYLOGGER"/>
-    </logger>
 
 </configuration>

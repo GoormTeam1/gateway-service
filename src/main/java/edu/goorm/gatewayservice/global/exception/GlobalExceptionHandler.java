@@ -18,30 +18,33 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     protected ResponseEntity<ApiResponse<Object>> handleBusinessException(BusinessException e, ServerWebExchange exchange) {
         ErrorCode errorCode = e.getErrorCode();
+        HttpStatus status = errorCode.getStatus();
 
         log.warn("비즈니스 예외 발생: {}", errorCode.getMessage());
 
-        GatewayCustomLogger.logRequest(
-            "BUSINESS_ERROR",
+        GatewayCustomLogger.logError(
             exchange.getRequest(),
-            extractUserIdFromHeader(exchange), // 헤더에 X-USER-ID 같은 값이 있다면
-            String.format("{\"errorMessage\": \"%s\"}", errorCode.getMessage())
+            extractUserIdFromHeader(exchange),
+            "BUSINESS_ERROR",
+            errorCode.getMessage(),
+            status.value()
         );
 
         return ResponseEntity
-            .status(errorCode.getStatus())
-            .body(ApiResponse.error(errorCode.getStatus(), errorCode.getMessage()));
+            .status(status)
+            .body(ApiResponse.error(status, errorCode.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ApiResponse<Object>> handleException(Exception e, ServerWebExchange exchange) {
         log.error("예기치 못한 오류 발생", e);
 
-        GatewayCustomLogger.logRequest(
-            "UNEXPECTED_ERROR",
+        GatewayCustomLogger.logError(
             exchange.getRequest(),
             extractUserIdFromHeader(exchange),
-            String.format("{\"errorMessage\": \"%s\"}", e.getMessage())
+            "UNEXPECTED_ERROR",
+            e.getMessage(),
+            HttpStatus.INTERNAL_SERVER_ERROR.value()
         );
 
         return ResponseEntity
@@ -65,11 +68,12 @@ public class GlobalExceptionHandler {
 
         log.warn("유효성 검사 실패: {}", message);
 
-        GatewayCustomLogger.logRequest(
-            "VALIDATION_ERROR",
+        GatewayCustomLogger.logError(
             exchange.getRequest(),
             extractUserIdFromHeader(exchange),
-            String.format("{\"validationError\": \"%s\"}", message)
+            "VALIDATION_ERROR",
+            message,
+            HttpStatus.BAD_REQUEST.value()
         );
 
         return ResponseEntity
@@ -77,7 +81,6 @@ public class GlobalExceptionHandler {
             .body(ApiResponse.error(HttpStatus.BAD_REQUEST, message));
     }
 
-    // ✅ 유저 ID를 헤더에서 추출 (JWT 기반이면 여기에 토큰 파싱도 가능)
     private String extractUserIdFromHeader(ServerWebExchange exchange) {
         return exchange.getRequest().getHeaders().getFirst("X-USER-ID");
     }

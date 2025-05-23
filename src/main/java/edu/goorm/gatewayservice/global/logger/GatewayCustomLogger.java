@@ -1,15 +1,21 @@
 package edu.goorm.gatewayservice.global.logger;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.goorm.gatewayservice.global.util.CustomIpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GatewayCustomLogger {
 
-  private static final Logger logger = LoggerFactory.getLogger(GatewayCustomLogger.class);
+  private static final Logger infoLogger = LoggerFactory.getLogger("infoLogger");
+  private static final Logger errorLogger = LoggerFactory.getLogger("errorLogger");
+  private static final ObjectMapper mapper = new ObjectMapper();
 
   public static void logRequest(
       String logType,
@@ -17,36 +23,56 @@ public class GatewayCustomLogger {
       String userId,
       String payload
   ) {
-    String path = request.getURI().getPath();
-    String method = String.valueOf(request.getMethod());
-    String ip = CustomIpUtil.getClientIp(request);
-    String userAgent = request.getHeaders().getFirst("User-Agent");
+    try {
+      Map<String, Object> logMap = new HashMap<>();
+      logMap.put("timestamp", LocalDateTime.now().toString());
+      logMap.put("level", "INFO");
+      logMap.put("logType", logType);
+      logMap.put("traceId", MDC.get("traceId"));
+      logMap.put("service", "gateway-service");
+      request.getMethod();
+      logMap.put("method", request.getMethod().name());
+      logMap.put("url", request.getURI().getPath());
+      logMap.put("userId", userId != null ? userId : "-");
+      logMap.put("payload", payload != null ? payload : "-");
+      logMap.put("ip", CustomIpUtil.getClientIp(request));
+      logMap.put("userAgent", request.getHeaders().getFirst("User-Agent"));
 
-    logger.info(String.format(
-        "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s",
-        logType,
-        LocalDateTime.now(),
-        path,
-        method,
-        userId != null ? userId : "-",
-        payload != null ? payload : "-",
-        ip != null ? ip : "-",
-        userAgent != null ? userAgent : "-"
-    ));
+      infoLogger.info(mapper.writeValueAsString(logMap));
+    } catch (Exception e) {
+      errorLogger.error("Failed to log gateway request", e);
+    }
   }
 
-  private static String extractClientIp(ServerHttpRequest request) {
-    // X-Forwarded-For 헤더 우선
-    String forwardedFor = request.getHeaders().getFirst("X-Forwarded-For");
-    if (forwardedFor != null) {
-      return forwardedFor.split(",")[0].trim();
-    }
+  public static void logError(
+      ServerHttpRequest request,
+      String userId,
+      String logType,
+      String errorMessage,
+      int status
+  ) {
+    try {
+      Map<String, Object> logMap = new HashMap<>();
+      logMap.put("timestamp", LocalDateTime.now().toString());
+      logMap.put("level", "ERROR");
+      logMap.put("logType", logType);
+      logMap.put("traceId", MDC.get("traceId"));
+      logMap.put("service", "gateway-service");
+      logMap.put("method", request.getMethod() != null ? request.getMethod().name() : "-");
+      logMap.put("url", request.getURI().getPath());
+      logMap.put("status", status);
+      logMap.put("userId", userId != null ? userId : "-");
+      logMap.put("ip", CustomIpUtil.getClientIp(request));
+      logMap.put("userAgent", request.getHeaders().getFirst("User-Agent"));
 
-    // 없으면 remoteAddress 사용
-    if (request.getRemoteAddress() != null) {
-      return request.getRemoteAddress().getAddress().getHostAddress();
-    }
+      Map<String, Object> error = new HashMap<>();
+      error.put("message", errorMessage);
+      logMap.put("error", error);
 
-    return "-";
+      errorLogger.error(mapper.writeValueAsString(logMap));
+    } catch (Exception ex) {
+      errorLogger.error("Failed to log gateway error", ex);
+    }
   }
+
 }
