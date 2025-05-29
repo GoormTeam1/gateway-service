@@ -5,9 +5,9 @@
 
     <!-- ✅ info 로그 (JSON 형식) -->
     <appender name="INFO_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>../logs/service/gateway-service/info.log</file>
+        <file>/home/ubuntu/backend/logs/service/gateway-service/info.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>../logs/service/gateway-service/info.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>/home/ubuntu/backend/logs/service/gateway-service/info.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -17,9 +17,9 @@
 
     <!-- ✅ error 로그 (JSON 형식) -->
     <appender name="ERROR_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>../logs/service/gateway-service/error.log</file>
+        <file>/home/ubuntu/backend/logs/service/gateway-service/error.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>../logs/service/gateway-service/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>/home/ubuntu/backend/logs/service/gateway-service/error.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -27,17 +27,17 @@
         </encoder>
     </appender>
 
-<!--    &lt;!&ndash; ✅ external 로그 (Kafka 등 외부 시스템 연동) &ndash;&gt;-->
-<!--    <appender name="EXTERNAL_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
-<!--        <file>../logs/service/gateway-service/external.log</file>-->
-<!--        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
-<!--            <fileNamePattern>../logs/service/gateway-service/external.%d{yyyy-MM-dd}.log</fileNamePattern>-->
-<!--            <maxHistory>30</maxHistory>-->
-<!--        </rollingPolicy>-->
-<!--        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">-->
-<!--            <Pattern>%msg%n</Pattern>-->
-<!--        </encoder>-->
-<!--    </appender>-->
+    <!-- ✅ external 로그 (Kafka 등 외부 시스템 연동) -->
+    <appender name="EXTERNAL_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/home/ubuntu/backend/logs/service/gateway-service/external.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/home/ubuntu/backend/logs/service/gateway-service/external.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%msg%n</Pattern>
+        </encoder>
+    </appender>
 
     <!-- ✅ 각각의 로거에 Appender 연결 -->
     <logger name="infoLogger" level="INFO" additivity="false">
@@ -48,9 +48,9 @@
         <appender-ref ref="ERROR_LOG"/>
     </logger>
 
-<!--    <logger name="externalLogger" level="INFO" additivity="false">-->
-<!--        <appender-ref ref="EXTERNAL_LOG"/>-->
-<!--    </logger>-->
+    <logger name="externalLogger" level="INFO" additivity="false">
+        <appender-ref ref="EXTERNAL_LOG"/>
+    </logger>
 
     <!-- ✅ 루트 로거는 콘솔만 유지 -->
     <root level="INFO">
