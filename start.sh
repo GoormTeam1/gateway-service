@@ -6,7 +6,7 @@ JAR_NAME="gateway.jar"
 APP_DIR="/home/ubuntu/backend/$APP_NAME"
 LOG_FILE="$APP_DIR/$APP_NAME.log"
 LOG_DIR="/home/ubuntu/backend/logs/service/$APP_NAME"
-ENV_FILE="$APP_DIR/.env"
+ENV_FILE="$APP_DIR/../.env"
 
 echo "▶ [$APP_NAME] 배포 시작"
 
