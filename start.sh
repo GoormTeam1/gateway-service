@@ -34,6 +34,6 @@ fi
 
 # ✅ 새 jar 실행
 echo "▶ 새 앱 실행 중..."
-nohup java -jar "$APP_DIR/$JAR_NAME" > "$LOG_FILE" 2>&1 &
+nohup java -jar "$LOG_DIR" > "$LOG_FILE" 2>&1 &
 
 echo "✅ [$APP_NAME] 배포 완료. 로그: $LOG_FILE"
