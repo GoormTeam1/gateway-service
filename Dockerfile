@@ -30,22 +30,20 @@ RUN ./gradlew build -x test --no-daemon
 # 실제 애플리케이션을 실행할 최소한의 환경만 포함합니다.
 # =======================================================
 # 실행에 필요한 JRE(Java Runtime Environment)만 포함된 가벼운 Temurin 이미지를 사용합니다.
-FROM eclipse-temurin:17-jre-jammy
+# 1단계: 빌더 없이 JAR만 복사
+FROM eclipse-temurin:17-jre AS runtime
 
-# 작업 디렉터리 설정
+# 작업 디렉토리 설정
 WORKDIR /app
 
-# 보안 강화를 위해 non-root 사용자 생성 및 사용
-# root 권한으로 컨테이너를 실행하는 것은 보안상 위험할 수 있습니다.
-RUN groupadd -r appuser && useradd --no-log-init -r -g appuser appuser
-USER appuser
+# 빌드된 JAR 파일 복사
+COPY gateway.jar app.jar
 
-# 빌드 스테이지(builder)에서 생성된 Jar 파일만 복사해옵니다.
-# 멀티스테이지 빌드의 핵심으로, JDK나 Gradle 같은 무거운 빌드 도구들은 이 이미지에 포함되지 않습니다.
-COPY --from=builder /build/build/libs/*.jar app.jar
-
-# 애플리케이션이 사용할 포트를 명시적으로 외부에 알립니다.
+# 포트 노출
 EXPOSE 8080
 
-# 컨테이너가 시작될 때 이 명령어가 실행됩니다.
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# JVM 최적화 (컨테이너 환경에 맞춤)
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+
+# 실행 명령
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
