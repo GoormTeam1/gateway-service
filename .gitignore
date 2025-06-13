@@ -36,3 +36,15 @@ out/
 ### VS Code ###
 .vscode/
 .env
+.DS_Store
+logs/.DS_Store
+src/.DS_Store
+src/main/.DS_Store
+src/main/java/.DS_Store
+src/main/java/edu/.DS_Store
+src/main/java/edu/goorm/.DS_Store
+src/main/java/edu/goorm/userservice/.DS_Store
+.DS_Store
+src/.DS_Store
+*.yml
+logs/
