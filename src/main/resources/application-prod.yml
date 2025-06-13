@@ -7,23 +7,23 @@ spring:
     gateway:
       routes:
         - id: user-service
-          uri: http://newords-user:8081
+          uri: ${USER_URL_PROD}
           predicates:
             - Path=/api/user/**, /api/auth/**
         - id: news-service
-          uri: http://newords-news:8082
+          uri: ${NEWS_URL_PROD}
           predicates:
             - Path=/api/news/**, /api/summary/**, /api/scrabs/**
         - id: quiz-service
-          uri: http://newords-quiz:8083
+          uri: ${QUIZ_URL_PROD}
           predicates:
             - Path=/api/quiz/**
         - id: recommendation-service
-          uri: http://newords-recommendation:8084
+          uri: ${RECOMMENDATION_URL_PROD}
           predicates:
             - Path=/api/recommendation/**
         - id: ad-service
-          uri: http://newords-ad:8085
+          uri: ${AD_URL_PROD}
           predicates:
             - Path=/admin/ads/**
 
