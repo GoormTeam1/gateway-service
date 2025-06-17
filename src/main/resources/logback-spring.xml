@@ -5,9 +5,9 @@
 
     <!-- ✅ info 로그 (JSON 형식) -->
     <appender name="INFO_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/home/ubuntu/backend/logs/service/gateway-service/info.log</file>
+        <file>/logs/info.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/home/ubuntu/backend/logs/service/gateway-service/info.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>/logs/info.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -17,9 +17,9 @@
 
     <!-- ✅ error 로그 (JSON 형식) -->
     <appender name="ERROR_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/home/ubuntu/backend/logs/service/gateway-service/error.log</file>
+        <file>/logs/error.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/home/ubuntu/backend/logs/service/gateway-service/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>/logs/error.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -29,9 +29,9 @@
 
     <!-- ✅ external 로그 (Kafka 등 외부 시스템 연동) -->
     <appender name="EXTERNAL_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/home/ubuntu/backend/logs/service/gateway-service/external.log</file>
+        <file>/logs/external.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/home/ubuntu/backend/logs/service/gateway-service/external.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>/logs/external.%d{yyyy-MM-dd}.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
