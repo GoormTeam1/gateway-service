@@ -22,30 +22,41 @@ build:
   extends: .build_template
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
+  tags:
+    - deploy-runner
 
 test:
   extends: .test_template
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
+  tags:
+    - deploy-runner
 
 sonarqube-check:
   extends: .sonarqube_template
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
+  tags:
+    - deploy-runner
 
 publish_and_scan_image:
   extends:
     - .publish_template
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
+  tags:
+    - deploy-runner
 
-# --- ★★★ 파이프라인 마지막에 알림 작업 추가 ★★★ ---
 slack-notify-on-success:
   extends: .slack_notify_on_success_template
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
+  tags:
+    - deploy-runner
 
 slack-notify-on-failure:
   extends: .slack_notify_on_failure_template
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
+  tags:
+    - deploy-runner
